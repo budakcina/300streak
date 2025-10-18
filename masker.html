@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halaman Pesan Animasi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap" rel="stylesheet">
+    <style>
+        /* =================================
+           1. LAYOUT & FONT
+           ================================= */
+        body {
+            font-family: "Caveat Brush", cursive;
+            text-align: center;
+            background-color: #fce4ec;
+            color: #880e4f;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            
+            /* Animasi Fade In Halaman */
+            opacity: 0;
+            transition: opacity 1s ease-in-out; 
+        }
+        body.loaded {
+            opacity: 1;
+        }
+
+        /* =================================
+           2. LOGIN BOX & KONTEN PESAN
+           ================================= */
+        .login-box {
+            background-color: #ffffff;
+            border: 2px solid #880e4f;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 3; 
+            position: relative;
+            box-sizing: border-box;
+            min-height: 200px; /* Tambahkan tinggi minimum agar kotak tidak kolaps */
+        }
+        
+        /* Kontainer untuk menjaga h3 dan h4 */
+        .message-container {
+            min-height: 100px; /* Ruang untuk pesan */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* =================================
+           3. ANIMASI TYPEWRITER (H3)
+           ================================= */
+        #h3-typing {
+            overflow: hidden; 
+            border-right: 3px solid #880e4f; /* Efek kursor */
+            white-space: nowrap;
+            margin: 0 auto; 
+            font-size: 2.5em; /* Ukuran font yang lebih besar */
+            letter-spacing: 0.15em; 
+            width: 0; /* Mulai dari nol */
+        }
+
+        .typing-active #h3-typing {
+            /* Durasi dan langkah harus disesuaikan dengan panjang teks (11 karakter: "Haii icaa !") */
+            animation: 
+                typing 3s steps(11) forwards, 
+                blink-cursor 0.5s step-end infinite;
+        }
+
+        /* Keyframes Typewriter */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 3ch } /* 11ch = panjang teks "Haii icaa !" */
+        }
+
+        @keyframes blink-cursor {
+            from, to { border-color: transparent }
+            50% { border-color: #880e4f; }
+        }
+
+        /* =================================
+           4. ANIMASI FADE (H4)
+           ================================= */
+        #h4-message {
+            margin-top: 15px;
+            font-size: 1.5em;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        #h4-message.show {
+            opacity: 1;
+        }
+
+        /* =================================
+           5. TOMBOL LANJUT
+           ================================= */
+        #nextButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: 2px solid #880e4f;
+            border-radius: 5px;
+            background-color: #880e4f;
+            color: #ffffff;
+            opacity: 0;
+            pointer-events: none; /* Nonaktifkan klik saat tersembunyi */
+            transition: opacity 0.5s, background-color 0.3s;
+        }
+
+        #nextButton.show {
+            opacity: 1;
+            pointer-events: auto; /* Aktifkan klik saat terlihat */
+        }
+
+        
+
+        #backButton {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 4;
+            background-color: #ffffff;
+            color: #880e4f;
+            padding: 10px 15px;
+            border: 1px solid #880e4f;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        #backButton:hover {
+            background-color: #880e4f;
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+        
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 15px;
+            }
+            .instagram__flex img, .instagram__flex_bawah img, .instagram__flex_atas img {
+                 width: 25vw;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <a href="#" id="backButton" data-target="streak.html">⇐</a>
+
+    <div class="login-box">
+        <div class="message-container">
+            <h3 id="h3-typing">🩷</h3>
+            <h4 id="h4-message"></h4>
+        </div>
+        <button id="nextButton" onclick="nextMessage()">Buka</button>
+    </div>
+
+    <script>
+        // Data Pesan
+        const MESSAGES = [
+            "alasan aku kasih mugwort 😶‍🌫️🩷pink: suka aja liat kamu lagi maskeran lucu kaya petrik :P"
+        ];
+        
+        let messageIndex = 0;
+        const H3 = document.getElementById('h3-typing');
+        const H4 = document.getElementById('h4-message');
+        const nextBtn = document.getElementById('nextButton');
+        const messageContainer = document.querySelector('.message-container');
+        
+        const FADE_DURATION = 1000; // 1 detik (sesuai CSS transition)
+        const TYPING_DURATION = 3000; // 3 detik (sesuai CSS animation)
+
+        // =================================
+        // ANIMASI FADE IN/OUT HALAMAN
+        // =================================
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('loaded');
+            // Mulai animasi Typewriter setelah fade in halaman selesai
+            setTimeout(startTypewriter, 1000); 
+        });
+
+        const fadeOutAndRedirect = (url) => {
+            document.body.style.opacity = '0'; 
+            setTimeout(() => {
+                window.location.href = url;
+            }, 1000);
+        };
+
+        // Event Listener Tombol Kembali
+        document.getElementById('backButton').addEventListener('click', (e) => {
+            e.preventDefault();
+            fadeOutAndRedirect(e.target.getAttribute('data-target'));
+        });
+        
+        // Event Listener untuk semua link lainnya
+        document.querySelectorAll('a').forEach(link => {
+            if (link.id !== 'backButton' && link.getAttribute('href') && link.target !== '_blank') {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    fadeOutAndRedirect(link.href);
+                });
+            }
+        });
+
+        // =================================
+        // ANIMASI PESAN
+        // =================================
+
+        function startTypewriter() {
+            messageContainer.classList.add('typing-active');
+            
+            // Tampilkan tombol Lanjut pertama kali setelah Typewriter selesai
+            setTimeout(() => {
+                nextBtn.classList.add('show');
+            }, TYPING_DURATION + 500); // 3s typing + 0.5s buffer
+        }
+
+        function nextMessage() {
+            // Sembunyikan pesan H4 saat ini (Fade Out)
+            H4.classList.remove('show');
+            nextBtn.classList.remove('show');
+
+            if (messageIndex < MESSAGES.length) {
+                // Tunggu hingga pesan H4 menghilang sepenuhnya
+                setTimeout(() => {
+                    // Ganti teks H4
+                    H4.textContent = MESSAGES[messageIndex];
+                    messageIndex++;
+                    
+                    // Tampilkan pesan H4 baru (Fade In)
+                    H4.classList.add('show');
+                    
+                    // Tampilkan tombol Lanjut setelah pesan muncul
+                    setTimeout(() => {
+                        nextBtn.classList.add('show');
+                    }, FADE_DURATION); // Durasi fade in
+                    
+                }, FADE_DURATION); // Durasi fade out
+                
+            } else {
+                // Semua pesan selesai
+                H4.classList.remove('show');
+                
+                setTimeout(() => {
+                    H4.textContent = "";
+                    H4.classList.add('show');
+                    nextBtn.textContent = "balik lagi ke halaman awal";
+                    nextBtn.onclick = () => fadeOutAndRedirect('streak.html');
+                    nextBtn.classList.add('show');
+                }, FADE_DURATION);
+            }
+        }
+        
+        // Atur pesan pertama muncul otomatis setelah h3 selesai
+        // Karena ada tombol lanjut, kita tidak memanggil nextMessage() secara otomatis di awal.
+        // nextMessage akan dipanggil oleh tombol Lanjut.
+    </script>
+</body>
+</html>
